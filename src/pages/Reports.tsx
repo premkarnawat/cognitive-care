@@ -21,10 +21,18 @@ const demoWeekly = [
   { week: 'W4', burnoutRisk: 30, avgStress: 4 },
 ];
 
+const tooltipStyle = {
+  background: 'hsl(22 12% 7% / 0.95)',
+  border: '1px solid hsl(30 18% 16% / 0.5)',
+  borderRadius: 12,
+  color: 'hsl(38 25% 93%)',
+  backdropFilter: 'blur(12px)',
+};
+
 const ChartCard = ({ title, children }: { title: string; children: React.ReactNode }) => (
-  <div className="glass-card p-4 mb-4">
-    <h3 className="text-sm font-semibold mb-3 text-muted-foreground">{title}</h3>
-    <div className="h-48">{children}</div>
+  <div className="glass-card p-5 mb-4">
+    <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-4">{title}</h3>
+    <div className="h-52">{children}</div>
   </div>
 );
 
@@ -33,37 +41,42 @@ const Reports = () => (
     <div className="pointer-events-none absolute inset-0 ambient-glow" />
     <div className="relative z-10 px-5 pt-8">
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mb-6">
-        <h1 className="font-display text-2xl font-bold flex items-center gap-2"><BarChart3 className="h-6 w-6 text-primary" /> Reports & Analytics</h1>
+        <h1 className="font-display text-2xl font-bold flex items-center gap-2">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl" style={{ background: 'linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)))' }}>
+            <BarChart3 className="h-5 w-5 text-primary-foreground" />
+          </div>
+          Reports & Analytics
+        </h1>
       </motion.div>
 
       <Tabs defaultValue="daily" className="w-full">
-        <TabsList className="w-full bg-muted/50 backdrop-blur-sm">
-          <TabsTrigger value="daily" className="flex-1">Daily</TabsTrigger>
-          <TabsTrigger value="weekly" className="flex-1">Weekly</TabsTrigger>
-          <TabsTrigger value="monthly" className="flex-1">Monthly</TabsTrigger>
+        <TabsList className="w-full glass-card p-1 rounded-xl">
+          <TabsTrigger value="daily" className="flex-1 rounded-lg text-xs font-semibold data-[state=active]:bg-primary/20 data-[state=active]:text-primary">Daily</TabsTrigger>
+          <TabsTrigger value="weekly" className="flex-1 rounded-lg text-xs font-semibold data-[state=active]:bg-primary/20 data-[state=active]:text-primary">Weekly</TabsTrigger>
+          <TabsTrigger value="monthly" className="flex-1 rounded-lg text-xs font-semibold data-[state=active]:bg-primary/20 data-[state=active]:text-primary">Monthly</TabsTrigger>
         </TabsList>
 
         <TabsContent value="daily" className="mt-4 space-y-4">
           <ChartCard title="Stress & Fatigue Trends">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={demoDaily}>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                <XAxis dataKey="day" stroke="hsl(var(--muted-foreground))" fontSize={12} />
-                <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} />
-                <Tooltip contentStyle={{ background: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: 12, color: 'hsl(var(--foreground))' }} />
-                <Area type="monotone" dataKey="stress" stroke="hsl(var(--primary))" fill="hsl(var(--primary) / 0.2)" />
-                <Area type="monotone" dataKey="fatigue" stroke="hsl(var(--accent))" fill="hsl(var(--accent) / 0.2)" />
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(30 18% 16% / 0.4)" />
+                <XAxis dataKey="day" stroke="hsl(32 12% 50%)" fontSize={11} />
+                <YAxis stroke="hsl(32 12% 50%)" fontSize={11} />
+                <Tooltip contentStyle={tooltipStyle} />
+                <Area type="monotone" dataKey="stress" stroke="hsl(32 95% 52%)" fill="hsl(32 95% 52% / 0.15)" strokeWidth={2} />
+                <Area type="monotone" dataKey="fatigue" stroke="hsl(24 85% 48%)" fill="hsl(24 85% 48% / 0.1)" strokeWidth={2} />
               </AreaChart>
             </ResponsiveContainer>
           </ChartCard>
           <ChartCard title="Sleep Pattern">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={demoDaily}>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                <XAxis dataKey="day" stroke="hsl(var(--muted-foreground))" fontSize={12} />
-                <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} />
-                <Tooltip contentStyle={{ background: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: 12, color: 'hsl(var(--foreground))' }} />
-                <Bar dataKey="sleep" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(30 18% 16% / 0.4)" />
+                <XAxis dataKey="day" stroke="hsl(32 12% 50%)" fontSize={11} />
+                <YAxis stroke="hsl(32 12% 50%)" fontSize={11} />
+                <Tooltip contentStyle={tooltipStyle} />
+                <Bar dataKey="sleep" fill="hsl(32 95% 52%)" radius={[6, 6, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </ChartCard>
@@ -73,11 +86,11 @@ const Reports = () => (
           <ChartCard title="Weekly Burnout Risk">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={demoWeekly}>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                <XAxis dataKey="week" stroke="hsl(var(--muted-foreground))" fontSize={12} />
-                <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} />
-                <Tooltip contentStyle={{ background: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: 12, color: 'hsl(var(--foreground))' }} />
-                <Bar dataKey="burnoutRisk" fill="hsl(var(--accent))" radius={[4, 4, 0, 0]} />
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(30 18% 16% / 0.4)" />
+                <XAxis dataKey="week" stroke="hsl(32 12% 50%)" fontSize={11} />
+                <YAxis stroke="hsl(32 12% 50%)" fontSize={11} />
+                <Tooltip contentStyle={tooltipStyle} />
+                <Bar dataKey="burnoutRisk" fill="hsl(24 85% 48%)" radius={[6, 6, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </ChartCard>

@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import BottomNav from '@/components/BottomNav';
-import { HelpCircle, Mail, ExternalLink } from 'lucide-react';
+import { HelpCircle, ExternalLink } from 'lucide-react';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
@@ -22,40 +22,45 @@ const HelpSupport = () => {
       <div className="pointer-events-none absolute inset-0 ambient-glow" />
       <div className="relative z-10 px-5 pt-8">
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mb-6">
-          <h1 className="font-display text-2xl font-bold flex items-center gap-2"><HelpCircle className="h-6 w-6 text-primary" /> Help & Support</h1>
+          <h1 className="font-display text-2xl font-bold flex items-center gap-2">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl" style={{ background: 'linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)))' }}>
+              <HelpCircle className="h-5 w-5 text-primary-foreground" />
+            </div>
+            Help & Support
+          </h1>
         </motion.div>
 
-        <div className="glass-card p-4 mb-6">
-          <h2 className="font-semibold mb-3">Frequently Asked Questions</h2>
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="glass-card p-5 mb-4">
+          <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-4">Frequently Asked Questions</h2>
           <Accordion type="single" collapsible>
             {faqs.map(({ q, a }, i) => (
-              <AccordionItem key={i} value={`faq-${i}`}>
-                <AccordionTrigger className="text-sm text-left">{q}</AccordionTrigger>
-                <AccordionContent className="text-sm text-muted-foreground">{a}</AccordionContent>
+              <AccordionItem key={i} value={`faq-${i}`} className="border-border/20">
+                <AccordionTrigger className="text-sm text-left font-medium hover:text-primary transition-colors">{q}</AccordionTrigger>
+                <AccordionContent className="text-sm text-muted-foreground leading-relaxed">{a}</AccordionContent>
               </AccordionItem>
             ))}
           </Accordion>
-        </div>
+        </motion.div>
 
-        <div className="glass-card p-4 mb-6">
-          <h2 className="font-semibold mb-3">Send Feedback</h2>
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="glass-card p-5 mb-4">
+          <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-4">Send Feedback</h2>
           <textarea className="input-glass w-full min-h-[100px] resize-none mb-3" value={feedback} onChange={e => setFeedback(e.target.value)} placeholder="Tell us what you think..." />
-          <button onClick={() => { toast({ title: 'Thank you!', description: 'Your feedback has been submitted.' }); setFeedback(''); }} className="pill-button-primary w-full" disabled={!feedback.trim()}>
+          <button onClick={() => { toast({ title: 'Thank you! 🙏', description: 'Your feedback has been submitted.' }); setFeedback(''); }} className="pill-button-primary w-full" disabled={!feedback.trim()}>
             Send Feedback
           </button>
-        </div>
+        </motion.div>
 
-        <div className="glass-card p-4 space-y-3">
-          <h2 className="font-semibold">Resources</h2>
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="glass-card p-5 space-y-3">
+          <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">Resources</h2>
           {[
             { label: 'Mental Health Helpline', url: 'https://www.who.int/health-topics/mental-health' },
             { label: 'Stress Management Tips', url: 'https://www.mind.org.uk/information-support/' },
           ].map(({ label, url }) => (
-            <a key={label} href={url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-primary hover:underline">
+            <a key={label} href={url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm font-medium text-primary hover:underline transition-colors">
               <ExternalLink className="h-4 w-4" /> {label}
             </a>
           ))}
-        </div>
+        </motion.div>
       </div>
       <BottomNav />
     </div>
