@@ -5,6 +5,13 @@ import { motion } from 'framer-motion';
 import { Eye, EyeOff, UserPlus, Shield } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
+const Field = ({ label, children }: { label: string; children: React.ReactNode }) => (
+  <div>
+    <label className="mb-2 block text-xs font-semibold uppercase tracking-wider text-muted-foreground">{label}</label>
+    {children}
+  </div>
+);
+
 const Register = () => {
   const [form, setForm] = useState({
     fullName: '', email: '', password: '', confirmPassword: '',
@@ -18,7 +25,6 @@ const Register = () => {
 
   const age = form.dob ? Math.floor((Date.now() - new Date(form.dob).getTime()) / 31557600000) : null;
   const update = (key: string, value: string) => setForm(p => ({ ...p, [key]: value }));
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (form.password !== form.confirmPassword) {
@@ -43,13 +49,6 @@ const Register = () => {
       setLoading(false);
     }
   };
-
-  const Field = ({ label, children }: { label: string; children: React.ReactNode }) => (
-    <div>
-      <label className="mb-2 block text-xs font-semibold uppercase tracking-wider text-muted-foreground">{label}</label>
-      {children}
-    </div>
-  );
 
   return (
     <div className="relative flex min-h-screen items-center justify-center bg-background px-6 py-12">
