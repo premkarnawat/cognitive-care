@@ -1,6 +1,10 @@
 import { supabase } from './supabase';
 
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || '';
+const BACKEND_URL = import.meta.env.VITE_API_BASE_URL || '';
+
+if (!BACKEND_URL) {
+  console.error("VITE_API_BASE_URL is missing in Vercel Environment Variables");
+}
 
 async function getAuthHeaders() {
   const { data: { session } } = await supabase.auth.getSession();
