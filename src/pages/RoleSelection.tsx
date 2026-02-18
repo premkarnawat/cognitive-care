@@ -6,16 +6,30 @@ import { apiPost } from '@/lib/api';
 
 const RoleSelection = () => {
   const [role, setRole] = useState<'student' | 'employee' | null>(null);
-  const [form, setForm] = useState<any>({});
+
+  // ✅ initialize clean form state
+  const [form, setForm] = useState<any>({
+    college: "",
+    course: "",
+    year: "",
+    company: "",
+    role_title: "",
+    department: "",
+    work_type: ""
+  });
+
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const update = (key: string, value: string) => setForm((p: any) => ({ ...p, [key]: value }));
+  const update = (key: string, value: string) =>
+    setForm((p: any) => ({ ...p, [key]: value }));
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    try { await apiPost('/user/role', { role, ...form }); } catch {}
+    try {
+      await apiPost('/user/role', { role, ...form });
+    } catch {}
     setLoading(false);
     navigate('/health-profile');
   };
@@ -27,7 +41,9 @@ const RoleSelection = () => {
 
   const Field = ({ label, children }: { label: string; children: React.ReactNode }) => (
     <div>
-      <label className="mb-2 block text-xs font-semibold uppercase tracking-wider text-muted-foreground">{label}</label>
+      <label className="mb-2 block text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+        {label}
+      </label>
       {children}
     </div>
   );
@@ -44,9 +60,19 @@ const RoleSelection = () => {
         className="w-full max-w-md"
       >
         <div className="mb-8 text-center">
-          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }} className="text-xs font-semibold uppercase tracking-[0.2em] text-primary mb-3">Step 1 of 2</motion.p>
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.2 }}
+            className="text-xs font-semibold uppercase tracking-[0.2em] text-primary mb-3"
+          >
+            Step 1 of 2
+          </motion.p>
+
           <h1 className="font-display text-3xl font-bold">Choose Your Role</h1>
-          <p className="mt-2 text-sm text-muted-foreground">This helps us personalize your experience</p>
+          <p className="mt-2 text-sm text-muted-foreground">
+            This helps us personalize your experience
+          </p>
         </div>
 
         <div className="grid grid-cols-2 gap-4 mb-6">
@@ -55,22 +81,40 @@ const RoleSelection = () => {
               key={key}
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.98 }}
-              onClick={() => { setRole(key); setForm({}); }}
+              onClick={() => {
+                setRole(key);
+                setForm({});
+              }}
               className={`glass-card flex flex-col items-center gap-3 p-6 transition-all duration-300 ${
-                role === key
-                  ? 'border-primary/50 shadow-xl'
-                  : ''
+                role === key ? 'border-primary/50 shadow-xl' : ''
               }`}
-              style={role === key ? { boxShadow: '0 8px 32px -8px hsl(var(--primary) / 0.3)' } : {}}
-            >
-              <div className={`flex h-14 w-14 items-center justify-center rounded-2xl transition-all duration-300 ${
+              style={
                 role === key
-                  ? 'bg-gradient-to-br from-primary to-accent shadow-lg'
-                  : 'bg-muted'
-              }`}>
-                <Icon className={`h-7 w-7 ${role === key ? 'text-primary-foreground' : 'text-muted-foreground'}`} />
+                  ? { boxShadow: '0 8px 32px -8px hsl(var(--primary) / 0.3)' }
+                  : {}
+              }
+            >
+              <div
+                className={`flex h-14 w-14 items-center justify-center rounded-2xl transition-all duration-300 ${
+                  role === key
+                    ? 'bg-gradient-to-br from-primary to-accent shadow-lg'
+                    : 'bg-muted'
+                }`}
+              >
+                <Icon
+                  className={`h-7 w-7 ${
+                    role === key ? 'text-primary-foreground' : 'text-muted-foreground'
+                  }`}
+                />
               </div>
-              <span className={`font-display font-semibold ${role === key ? 'text-primary' : ''}`}>{label}</span>
+
+              <span
+                className={`font-display font-semibold ${
+                  role === key ? 'text-primary' : ''
+                }`}
+              >
+                {label}
+              </span>
               <span className="text-xs text-muted-foreground">{desc}</span>
             </motion.button>
           ))}
@@ -87,17 +131,78 @@ const RoleSelection = () => {
             >
               {role === 'student' ? (
                 <>
-                  <Field label="College"><input required className="input-glass w-full" onChange={e => update('college', e.target.value)} placeholder="MIT" /></Field>
-                  <Field label="Course"><input required className="input-glass w-full" onChange={e => update('course', e.target.value)} placeholder="Computer Science" /></Field>
-                  <Field label="Year"><input required className="input-glass w-full" type="number" min="1" max="6" onChange={e => update('year', e.target.value)} placeholder="3" /></Field>
+                  <Field label="College">
+                    <input
+                      required
+                      className="input-glass w-full"
+                      value={form.college || ""}
+                      onChange={(e) => update("college", e.target.value)}
+                      placeholder="MIT"
+                    />
+                  </Field>
+
+                  <Field label="Course">
+                    <input
+                      required
+                      className="input-glass w-full"
+                      value={form.course || ""}
+                      onChange={(e) => update("course", e.target.value)}
+                      placeholder="Computer Science"
+                    />
+                  </Field>
+
+                  <Field label="Year">
+                    <input
+                      required
+                      type="number"
+                      min="1"
+                      max="6"
+                      className="input-glass w-full"
+                      value={form.year || ""}
+                      onChange={(e) => update("year", e.target.value)}
+                      placeholder="3"
+                    />
+                  </Field>
                 </>
               ) : (
                 <>
-                  <Field label="Company"><input required className="input-glass w-full" onChange={e => update('company', e.target.value)} placeholder="Google" /></Field>
-                  <Field label="Role"><input required className="input-glass w-full" onChange={e => update('role_title', e.target.value)} placeholder="Software Engineer" /></Field>
-                  <Field label="Department"><input required className="input-glass w-full" onChange={e => update('department', e.target.value)} placeholder="Engineering" /></Field>
+                  <Field label="Company">
+                    <input
+                      required
+                      className="input-glass w-full"
+                      value={form.company || ""}
+                      onChange={(e) => update("company", e.target.value)}
+                      placeholder="Google"
+                    />
+                  </Field>
+
+                  <Field label="Role">
+                    <input
+                      required
+                      className="input-glass w-full"
+                      value={form.role_title || ""}
+                      onChange={(e) => update("role_title", e.target.value)}
+                      placeholder="Software Engineer"
+                    />
+                  </Field>
+
+                  <Field label="Department">
+                    <input
+                      required
+                      className="input-glass w-full"
+                      value={form.department || ""}
+                      onChange={(e) => update("department", e.target.value)}
+                      placeholder="Engineering"
+                    />
+                  </Field>
+
                   <Field label="Work Type">
-                    <select required className="input-glass w-full" onChange={e => update('work_type', e.target.value)}>
+                    <select
+                      required
+                      className="input-glass w-full"
+                      value={form.work_type || ""}
+                      onChange={(e) => update("work_type", e.target.value)}
+                    >
                       <option value="">Select</option>
                       <option value="remote">Remote</option>
                       <option value="onsite">On-site</option>
@@ -106,11 +211,18 @@ const RoleSelection = () => {
                   </Field>
                 </>
               )}
-              <button type="submit" disabled={loading} className="pill-button-primary w-full flex items-center justify-center gap-2">
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="pill-button-primary w-full flex items-center justify-center gap-2"
+              >
                 {loading ? (
                   <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent" />
                 ) : (
-                  <>Continue <ArrowRight className="h-4 w-4" /></>
+                  <>
+                    Continue <ArrowRight className="h-4 w-4" />
+                  </>
                 )}
               </button>
             </motion.form>
