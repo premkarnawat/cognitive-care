@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import BottomNav from '@/components/BottomNav';
 import { apiPost } from '@/lib/api';
+import { supabase } from '@/lib/supabase';   // ✅ ADDED
 import { Send, FileText, Bot, User } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 
@@ -18,24 +19,58 @@ const Chatbot = () => {
   const [loading, setLoading] = useState(false);
   const endRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => { endRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages]);
+  useEffect(() => { 
+    endRef.current?.scrollIntoView({ behavior: 'smooth' }); 
+  }, [messages]);
 
   const sendMessage = async (content: string, endpoint = '/chat') => {
     if (!content.trim() && endpoint === '/chat') return;
+
+    // ✅ GET USER ID
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+
+    const userId = session?.user?.id;
+
+    if (!userId) {
+      setMessages(prev => [
+        ...prev,
+        { role: 'assistant', content: "Please login to use chat." }
+      ]);
+      return;
+    }
+
     const userMsg: Message = { role: 'user', content: content || 'Analyze my reports' };
     setMessages(prev => [...prev, userMsg]);
     setInput('');
     setLoading(true);
+
     try {
-      const res = await apiPost(endpoint, { message: content, messages: [...messages, userMsg] });
-      setMessages(prev => [...prev, { role: 'assistant', content: res.response || res.message || JSON.stringify(res) }]);
+      const res = await apiPost(endpoint, {
+        user_id: userId,     // ✅ ADDED
+        message: content    // ✅ ONLY WHAT BACKEND EXPECTS
+      });
+
+      setMessages(prev => [
+        ...prev,
+        { role: 'assistant', content: res.reply || res.response || res.message }
+      ]);
+
     } catch (err: any) {
-      setMessages(prev => [...prev, { role: 'assistant', content: `Sorry, I couldn't process that. ${err.message}` }]);
+      setMessages(prev => [
+        ...prev,
+        { role: 'assistant', content: `Sorry, I couldn't process that. ${err.message}` }
+      ]);
     }
+
     setLoading(false);
   };
 
-  const handleSubmit = (e: React.FormEvent) => { e.preventDefault(); sendMessage(input); };
+  const handleSubmit = (e: React.FormEvent) => { 
+    e.preventDefault(); 
+    sendMessage(input); 
+  };
 
   return (
     <div className="relative flex min-h-screen flex-col bg-background pb-24">
@@ -109,9 +144,9 @@ const Chatbot = () => {
               <Bot className="h-4 w-4 text-primary-foreground" />
             </div>
             <div className="glass-card rounded-2xl rounded-bl-md px-5 py-4 flex gap-1.5">
-              <span className="h-2 w-2 rounded-full bg-primary animate-bounce" style={{ animationDelay: '0ms' }} />
-              <span className="h-2 w-2 rounded-full bg-primary animate-bounce" style={{ animationDelay: '150ms' }} />
-              <span className="h-2 w-2 rounded-full bg-primary animate-bounce" style={{ animationDelay: '300ms' }} />
+              <span className="h-2 w-2 rounded-full bg-primary animate-bounce" />
+              <span className="h-2 w-2 rounded-full bg-primary animate-bounce" />
+              <span className="h-2 w-2 rounded-full bg-primary animate-bounce" />
             </div>
           </motion.div>
         )}
@@ -120,8 +155,7 @@ const Chatbot = () => {
 
       {/* Input */}
       <div className="fixed bottom-16 left-0 right-0 z-20 px-4 pb-2">
-        <form onSubmit={handleSubmit} className="glass-card flex items-center gap-2 p-2 rounded-full"
-          style={{ boxShadow: '0 -4px 24px -4px hsl(var(--background) / 0.8)' }}>
+        <form onSubmit={handleSubmit} className="glass-card flex items-center gap-2 p-2 rounded-full">
           <input
             value={input}
             onChange={e => setInput(e.target.value)}
