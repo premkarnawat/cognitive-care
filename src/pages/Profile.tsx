@@ -16,7 +16,7 @@ const Profile = () => {
   };
 
   const menuItems = [
-    { icon: Settings, label: 'Settings', action: () => {} },
+    { icon: Settings, label: 'Settings', action: () => navigate('/settings') },
     { icon: HelpCircle, label: 'Help Center', action: () => navigate('/help') },
     { icon: MessageSquare, label: 'Send Feedback', action: () => navigate('/help') },
   ];
