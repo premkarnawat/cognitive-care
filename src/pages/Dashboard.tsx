@@ -1,6 +1,8 @@
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/lib/supabase';
 import { motion } from 'framer-motion';
+import { useEffect, useState } from 'react';
 import BottomNav from '@/components/BottomNav';
 import { ClipboardCheck, BarChart3, MessageCircle, Sparkles, BookOpen, Video } from 'lucide-react';
 
@@ -20,18 +22,41 @@ const BurnoutMeter = ({ value = 35 }: { value?: number }) => {
           </linearGradient>
           <filter id="glow">
             <feGaussianBlur stdDeviation="3" result="coloredBlur" />
-            <feMerge><feMergeNode in="coloredBlur" /><feMergeNode in="SourceGraphic" /></feMerge>
+            <feMerge>
+              <feMergeNode in="coloredBlur" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
           </filter>
         </defs>
+
         <path d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="hsl(var(--muted))" strokeWidth="14" strokeLinecap="round" />
-        <path d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="url(#gaugeGrad)" strokeWidth="14" strokeLinecap="round"
-          strokeDasharray={`${(value / 100) * 251.2} 251.2`} filter="url(#glow)" />
-        <line x1="100" y1="100" x2="100" y2="28" stroke={getColor(value)} strokeWidth="3" strokeLinecap="round"
-          transform={`rotate(${angle}, 100, 100)`} />
+        <path
+          d="M 20 100 A 80 80 0 0 1 180 100"
+          fill="none"
+          stroke="url(#gaugeGrad)"
+          strokeWidth="14"
+          strokeLinecap="round"
+          strokeDasharray={`${(value / 100) * 251.2} 251.2`}
+          filter="url(#glow)"
+        />
+
+        <line
+          x1="100"
+          y1="100"
+          x2="100"
+          y2="28"
+          stroke={getColor(value)}
+          strokeWidth="3"
+          strokeLinecap="round"
+          transform={`rotate(${angle}, 100, 100)`}
+        />
         <circle cx="100" cy="100" r="8" fill={getColor(value)} filter="url(#glow)" />
         <circle cx="100" cy="100" r="4" fill="hsl(var(--background))" />
       </svg>
-      <span className="mt-2 text-lg font-bold font-display" style={{ color: getColor(value) }}>{label}</span>
+
+      <span className="mt-2 text-lg font-bold font-display" style={{ color: getColor(value) }}>
+        {label}
+      </span>
       <span className="text-xs text-muted-foreground">{value}% burnout risk</span>
     </div>
   );
@@ -49,15 +74,52 @@ const cards = [
 const Dashboard = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const name = user?.user_metadata?.full_name || 'User';
+
+  // 🔹 NEW: state for display name
+  const [displayName, setDisplayName] = useState<string>('User');
+
+  // 🔹 NEW: Fetch from profiles if metadata missing
+  useEffect(() => {
+    const loadName = async () => {
+      if (user?.user_metadata?.full_name) {
+        setDisplayName(user.user_metadata.full_name);
+        return;
+      }
+
+      if (user?.id) {
+        const { data } = await supabase
+          .from('profiles')
+          .select('full_name')
+          .eq('id', user.id)
+          .single();
+
+        if (data?.full_name) {
+          setDisplayName(data.full_name);
+        }
+      }
+    };
+
+    loadName();
+  }, [user]);
 
   return (
     <div className="relative min-h-screen bg-background pb-24">
       <div className="pointer-events-none absolute inset-0 ambient-glow" />
+
       <div className="relative z-10 px-5 pt-8">
-        <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="mb-6">
-          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">Welcome back,</p>
-          <h1 className="font-display text-3xl font-bold">Hey, {name.split(' ')[0]} 👋</h1>
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-6"
+        >
+          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">
+            Welcome back,
+          </p>
+
+          {/* ✅ First name only */}
+          <h1 className="font-display text-3xl font-bold">
+            Hey, {displayName.split(' ')[0]} 👋
+          </h1>
         </motion.div>
 
         <motion.div
@@ -66,7 +128,10 @@ const Dashboard = () => {
           transition={{ delay: 0.1 }}
           className="glass-card p-6 mb-6 shimmer"
         >
-          <h2 className="text-center font-display text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-2">Burnout Meter</h2>
+          <h2 className="text-center font-display text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-2">
+            Burnout Meter
+          </h2>
+
           <BurnoutMeter value={35} />
         </motion.div>
 
@@ -85,12 +150,14 @@ const Dashboard = () => {
               <div className={`mb-3 flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br ${gradient} shadow-lg`}>
                 <Icon className="h-5 w-5 text-white" />
               </div>
+
               <h3 className="font-display font-semibold text-sm">{title}</h3>
               <p className="text-[11px] text-muted-foreground mt-0.5">{desc}</p>
             </motion.button>
           ))}
         </div>
       </div>
+
       <BottomNav />
     </div>
   );
