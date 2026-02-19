@@ -1,12 +1,12 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { LayoutDashboard, ClipboardCheck, MessageCircle, BarChart3, User } from 'lucide-react';
+import { LayoutDashboard, ClipboardCheck, MessageCircle, BookOpen, User } from 'lucide-react';
 
 const navItems = [
   { path: '/dashboard', icon: LayoutDashboard, label: 'Home' },
   { path: '/checkin', icon: ClipboardCheck, label: 'Check-in' },
   { path: '/chat', icon: MessageCircle, label: 'Chat' },
-  { path: '/reports', icon: BarChart3, label: 'Reports' },
+  { path: '/blog', icon: BookOpen, label: 'Blog' },
   { path: '/profile', icon: User, label: 'Profile' },
 ];
 
