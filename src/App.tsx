@@ -17,6 +17,8 @@ import Reports from "./pages/Reports";
 import Wellness from "./pages/Wellness";
 import Profile from "./pages/Profile";
 import HelpSupport from "./pages/HelpSupport";
+import Blog from "./pages/Blog";
+import TipsVideos from "./pages/TipsVideos";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -41,6 +43,8 @@ const App = () => (
             <Route path="/wellness" element={<ProtectedRoute><Wellness /></ProtectedRoute>} />
             <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
             <Route path="/help" element={<ProtectedRoute><HelpSupport /></ProtectedRoute>} />
+            <Route path="/blog" element={<ProtectedRoute><Blog /></ProtectedRoute>} />
+            <Route path="/tips" element={<ProtectedRoute><TipsVideos /></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

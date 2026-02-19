@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { motion } from 'framer-motion';
 import BottomNav from '@/components/BottomNav';
-import { ClipboardCheck, TrendingUp, BarChart3, Calendar, MessageCircle, Sparkles } from 'lucide-react';
+import { ClipboardCheck, BarChart3, MessageCircle, Sparkles, BookOpen, Video } from 'lucide-react';
 
 const BurnoutMeter = ({ value = 35 }: { value?: number }) => {
   const getColor = (v: number) => v < 40 ? '#4ade80' : v < 70 ? '#facc15' : '#f87171';
@@ -39,11 +39,11 @@ const BurnoutMeter = ({ value = 35 }: { value?: number }) => {
 
 const cards = [
   { icon: ClipboardCheck, title: 'Daily Check-in', desc: 'Log how you feel today', path: '/checkin', gradient: 'from-primary to-accent' },
-  { icon: TrendingUp, title: 'Burnout Risk', desc: 'View your risk score', path: '/reports', gradient: 'from-red-500 to-orange-500' },
-  { icon: BarChart3, title: 'Weekly Report', desc: 'Trends & insights', path: '/reports', gradient: 'from-blue-500 to-cyan-500' },
-  { icon: Calendar, title: 'Monthly Report', desc: 'Long-term patterns', path: '/reports', gradient: 'from-purple-500 to-pink-500' },
+  { icon: BarChart3, title: 'Reports & Analytics', desc: 'Trends & insights', path: '/reports', gradient: 'from-blue-500 to-cyan-500' },
   { icon: MessageCircle, title: 'Chat with AI', desc: 'Talk to your assistant', path: '/chat', gradient: 'from-emerald-500 to-teal-500' },
   { icon: Sparkles, title: 'Wellness', desc: 'Activities & exercises', path: '/wellness', gradient: 'from-amber-500 to-yellow-500' },
+  { icon: BookOpen, title: 'Blog', desc: 'Read latest articles', path: '/blog', gradient: 'from-purple-500 to-pink-500' },
+  { icon: Video, title: 'Tips & Videos', desc: 'Motivation & relaxation', path: '/tips', gradient: 'from-red-500 to-orange-500' },
 ];
 
 const Dashboard = () => {
