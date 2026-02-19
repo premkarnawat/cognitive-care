@@ -27,8 +27,13 @@ const DailyCheckin = () => {
     setLoading(true);
     try {
       const res = await apiPost('/predict', {
-        fatigue, stress, sleep_hours: Number(sleepHours), work_hours: Number(workHours),
-        study_hours: Number(studyHours), screen_time: Number(screenTime), social_media_hours: Number(socialMedia),
+        fatigue,
+        stress,
+        sleep: Number(sleepHours),              // ✅ FIXED
+        work_hours: Number(workHours),
+        study_hours: Number(studyHours),
+        screen_time: Number(screenTime),
+        social_media_hours: Number(socialMedia),
       });
       setResult(res);
     } catch (err: any) {
@@ -51,7 +56,9 @@ const DailyCheckin = () => {
 
   const Field = ({ label, children }: { label: string; children: React.ReactNode }) => (
     <div>
-      <label className="mb-2 block text-xs font-semibold uppercase tracking-wider text-muted-foreground">{label}</label>
+      <label className="mb-2 block text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+        {label}
+      </label>
       {children}
     </div>
   );
@@ -62,12 +69,17 @@ const DailyCheckin = () => {
       <div className="relative z-10 px-5 pt-8">
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mb-6">
           <h1 className="font-display text-2xl font-bold flex items-center gap-2">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl" style={{ background: 'linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)))' }}>
+            <div
+              className="flex h-9 w-9 items-center justify-center rounded-xl"
+              style={{ background: 'linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)))' }}
+            >
               <ClipboardCheck className="h-5 w-5 text-primary-foreground" />
             </div>
             Daily Check-in
           </h1>
-          <p className="text-muted-foreground text-sm mt-2 ml-11">How are you feeling today?</p>
+          <p className="text-muted-foreground text-sm mt-2 ml-11">
+            How are you feeling today?
+          </p>
         </motion.div>
 
         <AnimatePresence mode="wait">
@@ -87,6 +99,7 @@ const DailyCheckin = () => {
                 </label>
                 <Slider value={[fatigue]} onValueChange={v => setFatigue(v[0])} min={1} max={10} step={1} />
               </div>
+
               <div>
                 <label className="flex justify-between text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">
                   <span>Stress Level</span>
@@ -94,16 +107,36 @@ const DailyCheckin = () => {
                 </label>
                 <Slider value={[stress]} onValueChange={v => setStress(v[0])} min={1} max={10} step={1} />
               </div>
+
               <div className="grid grid-cols-2 gap-3">
-                <Field label="Sleep Hours"><input type="number" step="0.5" required className="input-glass w-full" value={sleepHours} onChange={e => setSleepHours(e.target.value)} placeholder="7" /></Field>
-                <Field label="Work Hours"><input type="number" step="0.5" required className="input-glass w-full" value={workHours} onChange={e => setWorkHours(e.target.value)} placeholder="8" /></Field>
-                <Field label="Study Hours"><input type="number" step="0.5" required className="input-glass w-full" value={studyHours} onChange={e => setStudyHours(e.target.value)} placeholder="3" /></Field>
-                <Field label="Screen Time"><input type="number" step="0.5" required className="input-glass w-full" value={screenTime} onChange={e => setScreenTime(e.target.value)} placeholder="6" /></Field>
+                <Field label="Sleep Hours">
+                  <input type="number" step="0.5" required className="input-glass w-full"
+                    value={sleepHours} onChange={e => setSleepHours(e.target.value)} placeholder="7" />
+                </Field>
+
+                <Field label="Work Hours">
+                  <input type="number" step="0.5" required className="input-glass w-full"
+                    value={workHours} onChange={e => setWorkHours(e.target.value)} placeholder="8" />
+                </Field>
+
+                <Field label="Study Hours">
+                  <input type="number" step="0.5" required className="input-glass w-full"
+                    value={studyHours} onChange={e => setStudyHours(e.target.value)} placeholder="3" />
+                </Field>
+
+                <Field label="Screen Time">
+                  <input type="number" step="0.5" required className="input-glass w-full"
+                    value={screenTime} onChange={e => setScreenTime(e.target.value)} placeholder="6" />
+                </Field>
               </div>
+
               <Field label="Social Media Hours">
-                <input type="number" step="0.5" required className="input-glass w-full" value={socialMedia} onChange={e => setSocialMedia(e.target.value)} placeholder="2" />
+                <input type="number" step="0.5" required className="input-glass w-full"
+                  value={socialMedia} onChange={e => setSocialMedia(e.target.value)} placeholder="2" />
               </Field>
-              <button type="submit" disabled={loading} className="pill-button-primary w-full flex items-center justify-center gap-2">
+
+              <button type="submit" disabled={loading}
+                className="pill-button-primary w-full flex items-center justify-center gap-2">
                 {loading ? (
                   <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent" />
                 ) : 'Submit Check-in'}
@@ -118,20 +151,33 @@ const DailyCheckin = () => {
               className="glass-card p-6 space-y-5"
             >
               <div className="text-center">
-                {(() => { const Icon = RiskIcon(result.risk_level); return <Icon className="h-14 w-14 mx-auto" style={{ color: riskColor(result.risk_level) }} />; })()}
-                <h2 className="font-display text-4xl font-bold mt-4" style={{ color: riskColor(result.risk_level) }}>
+                {(() => {
+                  const Icon = RiskIcon(result.risk_level);
+                  return <Icon className="h-14 w-14 mx-auto" style={{ color: riskColor(result.risk_level) }} />;
+                })()}
+                <h2 className="font-display text-4xl font-bold mt-4"
+                  style={{ color: riskColor(result.risk_level) }}>
                   {Math.round(result.probability * 100)}%
                 </h2>
                 <p className="text-sm text-muted-foreground mt-1">Burnout Probability</p>
-                <span className="inline-block mt-3 rounded-full px-5 py-1.5 text-sm font-semibold glass-card" style={{ color: riskColor(result.risk_level), borderColor: riskColor(result.risk_level) + '40' }}>
+
+                <span className="inline-block mt-3 rounded-full px-5 py-1.5 text-sm font-semibold glass-card"
+                  style={{ color: riskColor(result.risk_level) }}>
                   {result.risk_level}
                 </span>
               </div>
+
               <div className="glass-card p-4 rounded-xl">
-                <h3 className="text-xs font-semibold uppercase tracking-wider text-primary mb-2">AI Explanation</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">{result.explanation}</p>
+                <h3 className="text-xs font-semibold uppercase tracking-wider text-primary mb-2">
+                  AI Explanation
+                </h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  {result.explanation}
+                </p>
               </div>
-              <button onClick={() => setResult(null)} className="pill-button-outline w-full flex items-center justify-center gap-2">
+
+              <button onClick={() => setResult(null)}
+                className="pill-button-outline w-full flex items-center justify-center gap-2">
                 <RotateCcw className="h-4 w-4" /> New Check-in
               </button>
             </motion.div>
