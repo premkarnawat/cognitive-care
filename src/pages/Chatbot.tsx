@@ -2,7 +2,6 @@ import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import BottomNav from '@/components/BottomNav';
 import { apiPost } from '@/lib/api';
-import { supabase } from '@/lib/supabase';   // ✅ ADDED
 import { Send, FileText, Bot, User } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 
@@ -23,23 +22,9 @@ const Chatbot = () => {
     endRef.current?.scrollIntoView({ behavior: 'smooth' }); 
   }, [messages]);
 
+  // ✅ CLEAN SEND FUNCTION
   const sendMessage = async (content: string, endpoint = '/chat') => {
     if (!content.trim() && endpoint === '/chat') return;
-
-    // ✅ GET USER ID
-    const {
-      data: { session },
-    } = await supabase.auth.getSession();
-
-    const userId = session?.user?.id;
-
-    if (!userId) {
-      setMessages(prev => [
-        ...prev,
-        { role: 'assistant', content: "Please login to use chat." }
-      ]);
-      return;
-    }
 
     const userMsg: Message = { role: 'user', content: content || 'Analyze my reports' };
     setMessages(prev => [...prev, userMsg]);
@@ -48,19 +33,21 @@ const Chatbot = () => {
 
     try {
       const res = await apiPost(endpoint, {
-        user_id: userId,     // ✅ ADDED
-        message: content    // ✅ ONLY WHAT BACKEND EXPECTS
+        message: content
       });
 
       setMessages(prev => [
         ...prev,
-        { role: 'assistant', content: res.reply || res.response || res.message }
+        { 
+          role: 'assistant',
+          content: res.reply || res.response || res.message || "No response"
+        }
       ]);
 
     } catch (err: any) {
       setMessages(prev => [
         ...prev,
-        { role: 'assistant', content: `Sorry, I couldn't process that. ${err.message}` }
+        { role: 'assistant', content: "Sorry, I couldn't process that." }
       ]);
     }
 
@@ -113,21 +100,21 @@ const Chatbot = () => {
                   <Bot className="h-4 w-4 text-primary-foreground" />
                 </div>
               )}
+
               <div className={`max-w-[80%] rounded-2xl px-4 py-3 text-sm leading-relaxed ${
                 msg.role === 'user'
                   ? 'rounded-br-md text-primary-foreground'
                   : 'glass-card rounded-bl-md'
               }`}
-                style={msg.role === 'user' ? {
-                  background: 'linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)))',
-                } : {}}
+                style={msg.role === 'user'
+                  ? { background: 'linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)))' }
+                  : {}}
               >
-                {msg.role === 'assistant' ? (
-                  <div className="prose prose-sm prose-invert max-w-none [&_p]:mb-2 [&_li]:text-muted-foreground [&_strong]:text-foreground">
-                    <ReactMarkdown>{msg.content}</ReactMarkdown>
-                  </div>
-                ) : msg.content}
+                {msg.role === 'assistant'
+                  ? <ReactMarkdown>{msg.content}</ReactMarkdown>
+                  : msg.content}
               </div>
+
               {msg.role === 'user' && (
                 <div className="flex-shrink-0 mt-1 h-8 w-8 rounded-xl bg-muted flex items-center justify-center">
                   <User className="h-4 w-4 text-muted-foreground" />
@@ -138,7 +125,7 @@ const Chatbot = () => {
         </AnimatePresence>
 
         {loading && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex gap-2.5 items-start">
+          <motion.div className="flex gap-2.5 items-start">
             <div className="h-8 w-8 rounded-xl flex items-center justify-center"
               style={{ background: 'linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)))' }}>
               <Bot className="h-4 w-4 text-primary-foreground" />
