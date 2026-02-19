@@ -14,13 +14,31 @@ async function getAuthHeaders() {
   };
 }
 
+/* ============================
+   ✅ ADDED FUNCTION
+============================ */
+async function attachUser(body: any) {
+  const { data: { session } } = await supabase.auth.getSession();
+
+  return {
+    ...body,
+    user_id: session?.user?.id || null,
+  };
+}
+/* ============================ */
+
 export async function apiPost<T = any>(endpoint: string, body: any): Promise<T> {
   const headers = await getAuthHeaders();
+
+  /* ✅ CHANGED LINE */
+  const payload = await attachUser(body);
+
   const res = await fetch(`${BACKEND_URL}${endpoint}`, {
     method: 'POST',
     headers,
-    body: JSON.stringify(body),
+    body: JSON.stringify(payload),   // ✅ payload instead of body
   });
+
   if (!res.ok) throw new Error(await res.text());
   return res.json();
 }
