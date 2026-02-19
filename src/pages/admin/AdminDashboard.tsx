@@ -2,13 +2,15 @@ import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ShieldCheck, Users, BookOpen, Sparkles, LogOut, Video } from 'lucide-react';
+import { ShieldCheck, Users, BookOpen, Sparkles, LogOut, Video, Settings } from 'lucide-react';
+
 import UserManagement from './UserManagement';
 import BlogManagement from './BlogManagement';
 import WellnessManagement from './WellnessManagement';
 import TipsManagement from './TipsManagement';
+import AdminSettings from './AdminSettings';
 
-type Tab = 'overview' | 'users' | 'blogs' | 'wellness' | 'tips';
+type Tab = 'overview' | 'users' | 'blogs' | 'wellness' | 'tips' | 'settings';
 
 const tabs = [
   { id: 'overview' as const, label: 'Overview', icon: ShieldCheck },
@@ -16,6 +18,7 @@ const tabs = [
   { id: 'blogs' as const, label: 'Blogs', icon: BookOpen },
   { id: 'wellness' as const, label: 'Wellness', icon: Sparkles },
   { id: 'tips' as const, label: 'Tips/Videos', icon: Video },
+  { id: 'settings' as const, label: 'Settings', icon: Settings },   // ✅ ADDED
 ];
 
 const AdminDashboard = () => {
@@ -35,7 +38,10 @@ const AdminDashboard = () => {
       {/* Top bar */}
       <div className="relative z-10 flex items-center justify-between border-b border-border/20 px-5 py-4">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl" style={{ background: 'linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)))' }}>
+          <div
+            className="flex h-10 w-10 items-center justify-center rounded-xl"
+            style={{ background: 'linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)))' }}
+          >
             <ShieldCheck className="h-5 w-5 text-primary-foreground" />
           </div>
           <div>
@@ -43,19 +49,25 @@ const AdminDashboard = () => {
             <p className="text-[11px] text-muted-foreground">Cognitive Care Management</p>
           </div>
         </div>
-        <button onClick={handleLogout} className="glass-card px-3 py-2 text-xs font-semibold text-destructive flex items-center gap-1.5">
+
+        <button
+          onClick={handleLogout}
+          className="glass-card px-3 py-2 text-xs font-semibold text-destructive flex items-center gap-1.5"
+        >
           <LogOut className="h-3.5 w-3.5" /> Logout
         </button>
       </div>
 
-      {/* Tab nav */}
+      {/* Tabs */}
       <div className="relative z-10 flex overflow-x-auto border-b border-border/20 px-3">
         {tabs.map(({ id, label, icon: Icon }) => (
           <button
             key={id}
             onClick={() => setActiveTab(id)}
             className={`flex items-center gap-1.5 px-4 py-3 text-xs font-semibold whitespace-nowrap border-b-2 transition-all ${
-              activeTab === id ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground'
+              activeTab === id
+                ? 'border-primary text-primary'
+                : 'border-transparent text-muted-foreground hover:text-foreground'
             }`}
           >
             <Icon className="h-3.5 w-3.5" />
@@ -71,6 +83,7 @@ const AdminDashboard = () => {
         {activeTab === 'blogs' && <BlogManagement />}
         {activeTab === 'wellness' && <WellnessManagement />}
         {activeTab === 'tips' && <TipsManagement />}
+        {activeTab === 'settings' && <AdminSettings />}   {/* ✅ ADDED */}
       </div>
     </div>
   );
@@ -79,6 +92,7 @@ const AdminDashboard = () => {
 const OverviewPanel = () => (
   <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
     <h2 className="font-display text-xl font-bold">Dashboard Overview</h2>
+
     <div className="grid grid-cols-2 gap-3">
       {[
         { label: 'Total Users', value: '—', icon: Users },
