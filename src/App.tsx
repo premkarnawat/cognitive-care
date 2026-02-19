@@ -31,6 +31,9 @@ import TipsVideos from "./pages/TipsVideos";
 import AdminLogin from "./pages/admin/AdminLogin";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 
+/* ✅ ADDED */
+import AdminSettings from "./pages/admin/AdminSettings";
+
 import NotFound from "./pages/NotFound";
 
 /* ✅ Create client once (prevents reload issues) */
@@ -149,6 +152,16 @@ const App = () => (
                   <AdminDashboard />
                 </AdminProtectedRoute>
               } />
+
+              {/* ✅ NEW ADMIN SETTINGS ROUTE */}
+              <Route
+                path="/admin/settings"
+                element={
+                  <AdminProtectedRoute>
+                    <AdminSettings />
+                  </AdminProtectedRoute>
+                }
+              />
 
               {/* Fallback */}
               <Route path="*" element={<NotFound />} />
