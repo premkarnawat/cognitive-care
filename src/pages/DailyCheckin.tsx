@@ -4,14 +4,17 @@ import BottomNav from '@/components/BottomNav';
 import { apiPost } from '@/lib/api';
 import { Slider } from '@/components/ui/slider';
 import { ClipboardCheck, AlertTriangle, CheckCircle, Info, RotateCcw } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface PredictionResult {
-  probability: number;
+  burnout_probability: number;   // ✅ MATCH BACKEND
   risk_level: string;
   explanation: string;
 }
 
 const DailyCheckin = () => {
+  const { user } = useAuth(); // ✅ GET USER
+
   const [fatigue, setFatigue] = useState(5);
   const [stress, setStress] = useState(5);
   const [sleepHours, setSleepHours] = useState('');
@@ -24,27 +27,40 @@ const DailyCheckin = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!user?.id) return;
+
     setLoading(true);
+
     try {
       const res = await apiPost('/predict', {
-        fatigue,
-        stress,
-        sleep: Number(sleepHours),              // ✅ FIXED
+        user_id: user.id,                 // ✅ REQUIRED
+        fatigue: Number(fatigue),
+        stress: Number(stress),
+        sleep: Number(sleepHours),
         work_hours: Number(workHours),
         study_hours: Number(studyHours),
         screen_time: Number(screenTime),
         social_media_hours: Number(socialMedia),
       });
+
       setResult(res);
+
     } catch (err: any) {
-      setResult({ probability: 0, risk_level: 'Error', explanation: err.message || 'Failed to get prediction' });
+      setResult({
+        burnout_probability: 0,
+        risk_level: 'Error',
+        explanation: err.message || 'Failed to get prediction'
+      });
     }
+
     setLoading(false);
   };
 
   const riskColor = (level: string) => {
     if (level?.toLowerCase().includes('low')) return '#4ade80';
-    if (level?.toLowerCase().includes('moderate') || level?.toLowerCase().includes('medium')) return '#facc15';
+    if (level?.toLowerCase().includes('moderate')) return '#facc15';
+    if (level?.toLowerCase().includes('medium')) return '#facc15';
     return '#f87171';
   };
 
@@ -53,6 +69,11 @@ const DailyCheckin = () => {
     if (level?.toLowerCase().includes('high')) return AlertTriangle;
     return Info;
   };
+
+  const safePercentage =
+    result && Number.isFinite(result.burnout_probability)
+      ? Math.round(result.burnout_probability * 100)
+      : 0;
 
   const Field = ({ label, children }: { label: string; children: React.ReactNode }) => (
     <div>
@@ -66,7 +87,9 @@ const DailyCheckin = () => {
   return (
     <div className="relative min-h-screen bg-background pb-24">
       <div className="pointer-events-none absolute inset-0 ambient-glow" />
+
       <div className="relative z-10 px-5 pt-8">
+
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mb-6">
           <h1 className="font-display text-2xl font-bold flex items-center gap-2">
             <div
@@ -83,7 +106,9 @@ const DailyCheckin = () => {
         </motion.div>
 
         <AnimatePresence mode="wait">
+
           {!result ? (
+
             <motion.form
               key="form"
               initial={{ opacity: 0, y: 20 }}
@@ -92,6 +117,7 @@ const DailyCheckin = () => {
               onSubmit={handleSubmit}
               className="glass-card p-6 space-y-6"
             >
+
               <div>
                 <label className="flex justify-between text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">
                   <span>Fatigue Level</span>
@@ -110,39 +136,44 @@ const DailyCheckin = () => {
 
               <div className="grid grid-cols-2 gap-3">
                 <Field label="Sleep Hours">
-                  <input type="number" step="0.5" required className="input-glass w-full"
-                    value={sleepHours} onChange={e => setSleepHours(e.target.value)} placeholder="7" />
+                  <input type="number" required className="input-glass w-full"
+                    value={sleepHours} onChange={e => setSleepHours(e.target.value)} />
                 </Field>
 
                 <Field label="Work Hours">
-                  <input type="number" step="0.5" required className="input-glass w-full"
-                    value={workHours} onChange={e => setWorkHours(e.target.value)} placeholder="8" />
+                  <input type="number" required className="input-glass w-full"
+                    value={workHours} onChange={e => setWorkHours(e.target.value)} />
                 </Field>
 
                 <Field label="Study Hours">
-                  <input type="number" step="0.5" required className="input-glass w-full"
-                    value={studyHours} onChange={e => setStudyHours(e.target.value)} placeholder="3" />
+                  <input type="number" required className="input-glass w-full"
+                    value={studyHours} onChange={e => setStudyHours(e.target.value)} />
                 </Field>
 
                 <Field label="Screen Time">
-                  <input type="number" step="0.5" required className="input-glass w-full"
-                    value={screenTime} onChange={e => setScreenTime(e.target.value)} placeholder="6" />
+                  <input type="number" required className="input-glass w-full"
+                    value={screenTime} onChange={e => setScreenTime(e.target.value)} />
                 </Field>
               </div>
 
               <Field label="Social Media Hours">
-                <input type="number" step="0.5" required className="input-glass w-full"
-                  value={socialMedia} onChange={e => setSocialMedia(e.target.value)} placeholder="2" />
+                <input type="number" required className="input-glass w-full"
+                  value={socialMedia} onChange={e => setSocialMedia(e.target.value)} />
               </Field>
 
               <button type="submit" disabled={loading}
                 className="pill-button-primary w-full flex items-center justify-center gap-2">
-                {loading ? (
-                  <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent" />
-                ) : 'Submit Check-in'}
+
+                {loading
+                  ? <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent" />
+                  : 'Submit Check-in'}
+
               </button>
+
             </motion.form>
+
           ) : (
+
             <motion.div
               key="result"
               initial={{ opacity: 0, scale: 0.95 }}
@@ -150,16 +181,21 @@ const DailyCheckin = () => {
               exit={{ opacity: 0 }}
               className="glass-card p-6 space-y-5"
             >
+
               <div className="text-center">
                 {(() => {
                   const Icon = RiskIcon(result.risk_level);
                   return <Icon className="h-14 w-14 mx-auto" style={{ color: riskColor(result.risk_level) }} />;
                 })()}
+
                 <h2 className="font-display text-4xl font-bold mt-4"
                   style={{ color: riskColor(result.risk_level) }}>
-                  {Math.round(result.probability * 100)}%
+                  {safePercentage}%
                 </h2>
-                <p className="text-sm text-muted-foreground mt-1">Burnout Probability</p>
+
+                <p className="text-sm text-muted-foreground mt-1">
+                  Burnout Probability
+                </p>
 
                 <span className="inline-block mt-3 rounded-full px-5 py-1.5 text-sm font-semibold glass-card"
                   style={{ color: riskColor(result.risk_level) }}>
@@ -180,10 +216,14 @@ const DailyCheckin = () => {
                 className="pill-button-outline w-full flex items-center justify-center gap-2">
                 <RotateCcw className="h-4 w-4" /> New Check-in
               </button>
+
             </motion.div>
+
           )}
+
         </AnimatePresence>
       </div>
+
       <BottomNav />
     </div>
   );
